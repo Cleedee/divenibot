@@ -161,3 +161,4 @@ cython_debug/
 
 # Sessão do Pyrogram
 DiveniBot.session
+DiveniBot.session-journal

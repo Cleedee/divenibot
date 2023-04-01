@@ -56,7 +56,7 @@ def resposta_para_pontuacao(callback_query):
 def resposta_para_rodada_atual(callback_query):
     grupo_id = int(callback_query.data.replace('rodada_atual_', ''))
     grupo = service.pegar_grupo_por_id(grupo_id)
-    resposta = teclados.teclado_do_grupo(grupo)
+    resposta = teclados.teclado_da_rodada(grupo)
     rodada_atual = service.procurar_rodada_por_id(grupo.rodada_atual_id)
     partidas = service.procurar_partidas_da_rodada(rodada_atual)
     texto_partidas = '\n'.join(

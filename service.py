@@ -50,3 +50,16 @@ def procurar_rodadas_por_torneio(torneio):
 
 def procurar_partidas_da_rodada(rodada):
     return Partida.where('rodada_id', '=', rodada.id).get()
+
+
+def procurar_palpites(jogador, rodada):
+    pares_partida_palpite = []
+    partidas = procurar_partidas_da_rodada(rodada)
+    for partida in partidas:
+        palpite = (
+            Palpite.where('partida_id', '=', partida.id)
+            .where('apostador_id', '=', jogador.id)
+            .first()
+        )
+        pares_partida_palpite.append((partida, palpite))
+    return pares_partida_palpite

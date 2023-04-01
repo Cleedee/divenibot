@@ -70,3 +70,8 @@ class Partida(Model):
     @belongs_to
     def visitante(self):
         return Time
+
+
+class Palpite(Model):
+    __table__ = 'palpite'
+    __timestamps__ = False
