@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "divenibot"
+version = "0.1.0"
+description = "Bot Telegram que oferece recursos para os jogadores do Palpites realizarem seus palpites."
+authors = ["Claudio Torcato <claudiotorcato@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Pyrogram = "^2.0.102"
+python-dotenv = "^1.0.0"
+TgCrypto = "^1.2.5"
+orator = "^0.9.9"
+
+[tool.poetry.group.dev.dependencies]
+blue = "^0.9.1"
+taskipy = "^1.10.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
