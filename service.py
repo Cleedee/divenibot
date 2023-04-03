@@ -1,4 +1,4 @@
-from model import db, Torneio, Grupo, Jogador, Partida, Rodada
+from model import db, Torneio, Grupo, Jogador, Partida, Rodada, Palpite
 
 
 def procurar_torneios():
@@ -40,7 +40,15 @@ def procurar_jogadores_ativos_por_grupo(grupo_id):
     )
 
 
-def procurar_rodada_por_id(id):
+def procurar_jogador(usuario_id, grupo_id):
+    return (
+        Jogador.where('grupo_id', '=', grupo_id)
+        .where('usuario_id', '=', usuario_id)
+        .first()
+    )
+
+
+def pegar_rodada_por_id(id):
     return Rodada.find(id)
 
 

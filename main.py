@@ -56,16 +56,62 @@ def resposta_para_pontuacao(callback_query):
 def resposta_para_rodada_atual(callback_query):
     grupo_id = int(callback_query.data.replace('rodada_atual_', ''))
     grupo = service.pegar_grupo_por_id(grupo_id)
-    resposta = teclados.teclado_da_rodada(grupo)
-    rodada_atual = service.procurar_rodada_por_id(grupo.rodada_atual_id)
+    rodada_atual = service.pegar_rodada_por_id(grupo.rodada_atual_id)
+    resposta = teclados.teclado_da_rodada(grupo, rodada_atual)
     partidas = service.procurar_partidas_da_rodada(rodada_atual)
-    texto_partidas = '\n'.join(
-        ['{} x {}'.format(p.mandante.nome, p.visitante.nome) for p in partidas]
-    )
-    texto = (
-        '**Partidas da Rodada {}**\n\n'.format(rodada_atual.nome)
-        + texto_partidas
-    )
+
+    textos = []
+    for p in partidas:
+        if p.resultado == 'E':
+            textos.append(f'{p.mandante.nome} **X** {p.visitante.nome}')
+        elif p.resultado == 'M':
+            textos.append(f'**{p.mandante.nome}** X {p.visitante.nome}')
+        elif p.resultado == 'V':
+            textos.append(f'{p.mandante.nome} X **{p.visitante.nome}**')
+        else:
+            textos.append(f'{p.mandante.nome} X {p.visitante.nome}')
+
+    texto = '**Partidas da Rodada {}**\n\n'.format(
+        rodada_atual.nome
+    ) + '\n'.join(textos)
+    return resposta, texto
+
+
+def resposta_para_ver_palpites(callback_query):
+    """
+    [Athletico-PR] x Goiás
+    Fortaleza [x] Internacional
+    América-MG [x] Fluminense
+    """
+    ids_separados = callback_query.data.replace('ver_palpites_', '')
+    grupo_id, rodada_id = map(int, ids_separados.split('_'))
+    username = callback_query.from_user.username
+    usuario_id = usuarios[username]
+    jogador = service.procurar_jogador(usuario_id, grupo_id)
+    grupo = service.pegar_grupo_por_id(grupo_id)
+    rodada = service.pegar_rodada_por_id(rodada_id)
+    partidas_palpites = service.procurar_palpites(jogador, rodada)
+    textos = []
+    for partida, palpite in partidas_palpites:
+        if palpite and palpite.resultado != 'S':
+            mandante = (
+                f'[{partida.mandante.nome}]'
+                if (palpite.resultado == 'M')
+                else f'{partida.mandante.nome}'
+            )
+            empate = '[X]' if (palpite.resultado == 'E') else 'X'
+            visitante = (
+                f'[{partida.visitante.nome}]'
+                if (palpite.resultado == 'V')
+                else f'{partida.visitante.nome}'
+            )
+            textos.append(f'{mandante} {empate} {visitante}')
+        else:
+            textos.append(
+                f'{partida.mandante.nome} x {partida.visitante.nome}'
+            )
+    resposta = teclados.teclado_dos_palpites(grupo, partidas_palpites)
+    texto = f'**Palpites da Rodada {rodada.nome}\n\n**' + '\n'.join(textos)
     return resposta, texto
 
 
@@ -108,6 +154,11 @@ async def resposta_teclado(_, callback_query):
         )
     if 'rodada_atual_' in callback_query.data:
         resposta, texto = resposta_para_rodada_atual(callback_query)
+        await callback_query.edit_message_text(
+            texto, reply_markup=InlineKeyboardMarkup(resposta)
+        )
+    if 'ver_palpites_' in callback_query.data:
+        resposta, texto = resposta_para_ver_palpites(callback_query)
         await callback_query.edit_message_text(
             texto, reply_markup=InlineKeyboardMarkup(resposta)
         )

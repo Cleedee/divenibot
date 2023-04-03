@@ -45,7 +45,7 @@ def teclado_do_grupo(grupo):
     return botoes
 
 
-def teclado_da_rodada(grupo):
+def teclado_da_rodada(grupo, rodada):
     """
     Athletico-PR x Goiás
     Fortaleza x Internacional
@@ -61,10 +61,21 @@ def teclado_da_rodada(grupo):
         'Fazer Palpites', callback_data='fazer_palpites_'
     )
     botao_ver = InlineKeyboardButton(
-        'Ver Palpites', callback_data='ver_palpites_'
+        'Ver Palpites', callback_data=f'ver_palpites_{grupo.id}_{rodada.id}'
     )
-    botao_voltar = InlineKeyboardButton('Voltar', callback_data=f'grupo_{grupo.id}')
+    botao_voltar = InlineKeyboardButton(
+        'Voltar', callback_data=f'grupo_{grupo.id}'
+    )
     botoes.append([botao_fazer])
     botoes.append([botao_ver])
+    botoes.append([botao_voltar])
+    return botoes
+
+
+def teclado_dos_palpites(grupo, partidas_palpites):
+    botoes = []
+    botao_voltar = InlineKeyboardButton(
+        'Voltar', callback_data=f'rodada_atual_{grupo.id}'
+    )
     botoes.append([botao_voltar])
     return botoes
