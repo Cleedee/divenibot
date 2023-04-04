@@ -1,10 +1,13 @@
 from orator import DatabaseManager, Model
 from orator.orm import has_one, belongs_to, belongs_to_many
+from dotenv import dotenv_values
+
+env = dotenv_values('.env')
 
 config = {
     'sqlite': {
         'driver': 'sqlite',
-        'database': '/home/claudio/Projetos/Python/palpites/palpites/banco.db',
+        'database': env['DB_URI'],
     }
 }
 
