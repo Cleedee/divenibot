@@ -8,6 +8,7 @@ from dotenv import dotenv_values
 
 import service
 import teclados
+import utils
 
 config = dotenv_values('.env')
 
@@ -91,27 +92,26 @@ def resposta_para_ver_palpites(callback_query):
     grupo = service.pegar_grupo_por_id(grupo_id)
     rodada = service.pegar_rodada_por_id(rodada_id)
     partidas_palpites = service.procurar_palpites(jogador, rodada)
-    textos = []
-    for partida, palpite in partidas_palpites:
-        if palpite and palpite.resultado != 'S':
-            mandante = (
-                f'[{partida.mandante.nome}]'
-                if (palpite.resultado == 'M')
-                else f'{partida.mandante.nome}'
-            )
-            empate = '[X]' if (palpite.resultado == 'E') else 'X'
-            visitante = (
-                f'[{partida.visitante.nome}]'
-                if (palpite.resultado == 'V')
-                else f'{partida.visitante.nome}'
-            )
-            textos.append(f'{mandante} {empate} {visitante}')
-        else:
-            textos.append(
-                f'{partida.mandante.nome} x {partida.visitante.nome}'
-            )
+    textos = utils.rodada_com_palpites(partidas_palpites)
     resposta = teclados.teclado_dos_palpites(grupo, partidas_palpites)
     texto = f'**Palpites da Rodada {rodada.nome}\n\n**' + '\n'.join(textos)
+    return resposta, texto
+
+
+def resposta_para_fazer_palpites(callback_query):
+    ids_separados = callback_query.data.replace('fazer_palpites_', '')
+    grupo_id, rodada_id = map(int, ids_separados.split('_'))
+    username = callback_query.from_user.username
+    usuario_id = usuarios[username]
+    jogador = service.procurar_jogador(usuario_id, grupo_id)
+    grupo = service.pegar_grupo_por_id(grupo_id)
+    rodada = service.pegar_rodada_por_id(rodada_id)
+    partidas_palpites = service.procurar_palpites(jogador, rodada)
+    partida = partidas_palpites[0][0]
+    palpite = partidas_palpites[0][1]
+    resposta = teclados.teclado_de_fazer_palpites(grupo)
+    textos = utils.rodada_com_palpites([partidas_palpites[0]])
+    texto = f'**Dar Palpite na Rodada {rodada.nome}\n\n**' + '\n'.join(textos)    
     return resposta, texto
 
 
@@ -159,6 +159,11 @@ async def resposta_teclado(_, callback_query):
         )
     if 'ver_palpites_' in callback_query.data:
         resposta, texto = resposta_para_ver_palpites(callback_query)
+        await callback_query.edit_message_text(
+            texto, reply_markup=InlineKeyboardMarkup(resposta)
+        )
+    if 'fazer_palpites_' in callback_query.data:
+        resposta, texto = resposta_para_fazer_palpites(callback_query)
         await callback_query.edit_message_text(
             texto, reply_markup=InlineKeyboardMarkup(resposta)
         )

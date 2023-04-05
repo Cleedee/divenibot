@@ -51,14 +51,14 @@ def teclado_da_rodada(grupo, rodada):
     Fortaleza x Internacional
     América-MG x Fluminense
     +---------------------+
-    |  Fazer Palpites     |
+    |    Dar Palpites     |
     +---------------------+
-    |  Ver Palpites       |
+    |    Ver Palpites     |
     +---------------------+
     """
     botoes = []
     botao_fazer = InlineKeyboardButton(
-        'Fazer Palpites', callback_data='fazer_palpites_'
+        'Fazer Palpites', callback_data=f'fazer_palpites_{grupo.id}_{rodada.id}'
     )
     botao_ver = InlineKeyboardButton(
         'Ver Palpites', callback_data=f'ver_palpites_{grupo.id}_{rodada.id}'
@@ -77,5 +77,46 @@ def teclado_dos_palpites(grupo, partidas_palpites):
     botao_voltar = InlineKeyboardButton(
         'Voltar', callback_data=f'rodada_atual_{grupo.id}'
     )
+    botoes.append([botao_voltar])
+    return botoes
+
+def teclado_de_fazer_palpites(grupo):
+    """
+    Dar Palpite
+    +-----------------------+
+    
+    América-MG x [Fluminense]
+    +------------------------------+
+    |    Mandante  |   Visitante   |
+    +------------------------------+
+    |           Empate             |
+    +------------------------------+
+    |    Anterior  |   Posterior   |
+    +------------------------------+
+    |            Voltar            |
+    +------------------------------+
+    """
+    botoes = []
+    botao_mandante = InlineKeyboardButton(
+        'Mandante', callback_data=f'mandante_{grupo.id}'
+    )
+    botao_empate = InlineKeyboardButton(
+        'Empate', callback_data=f'empate_{grupo.id}'
+    )
+    botao_visitante = InlineKeyboardButton(
+        'Visitante', callback_data=f'visitante_{grupo.id}'
+    )
+    botao_anterior = InlineKeyboardButton(
+        'Anterior', callback_data=f'anterior_{grupo.id}'
+    )
+    botao_posterior = InlineKeyboardButton(
+        'Posterior', callback_data=f'posterior_{grupo.id}'
+    )
+    botao_voltar = InlineKeyboardButton(
+        'Voltar', callback_data=f'rodada_atual_{grupo.id}'
+    )
+    botoes.append([botao_mandante, botao_visitante])
+    botoes.append([botao_empate])
+    botoes.append([botao_anterior, botao_posterior])
     botoes.append([botao_voltar])
     return botoes
