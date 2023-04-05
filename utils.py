@@ -1,5 +1,3 @@
-
-
 def rodada_com_palpites(partidas_palpites):
     textos = []
     for partida, palpite in partidas_palpites:

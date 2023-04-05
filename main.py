@@ -111,7 +111,7 @@ def resposta_para_fazer_palpites(callback_query):
     palpite = partidas_palpites[0][1]
     resposta = teclados.teclado_de_fazer_palpites(grupo)
     textos = utils.rodada_com_palpites([partidas_palpites[0]])
-    texto = f'**Dar Palpite na Rodada {rodada.nome}\n\n**' + '\n'.join(textos)    
+    texto = f'**Dar Palpite na Rodada {rodada.nome}\n\n**' + '\n'.join(textos)
     return resposta, texto
 
 
