@@ -1,4 +1,0 @@
-Pyrogram
-python-dotenv
-TgCrypto
-orator
