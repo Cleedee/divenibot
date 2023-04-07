@@ -127,6 +127,12 @@ def resposta_para_escolher_visitante(callback_query):
     resposta, texto = utils.salvar_palpite_e_montar_resposta(palpite_id, 'V')
     return resposta, texto
 
+def resposta_para_escolher_empate(callback_query):
+    # obtenho do callback o id do palpite
+    palpite_id = callback_query.data.replace('empate_', '')
+    resposta, texto = utils.salvar_palpite_e_montar_resposta(palpite_id, 'E')
+    return resposta, texto
+
 # entrar num grupo
 
 # lista de jogadores
@@ -195,6 +201,11 @@ async def resposta_teclado(_, callback_query):
         )
     if 'visitante_' in callback_query.data:
         resposta, texto = resposta_para_escolher_visitante(callback_query)
+        await callback_query.edit_message_text(
+            texto, reply_markup=InlineKeyboardMarkup(resposta)
+        )
+    if 'empate_' in callback_query.data:
+        resposta, texto = resposta_para_escolher_empate(callback_query)
         await callback_query.edit_message_text(
             texto, reply_markup=InlineKeyboardMarkup(resposta)
         )
