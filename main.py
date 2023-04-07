@@ -109,15 +109,32 @@ def resposta_para_fazer_palpites(callback_query):
     partidas_palpites = service.procurar_palpites(jogador, rodada)
     partida = partidas_palpites[0][0]
     palpite = partidas_palpites[0][1]
-    resposta = teclados.teclado_de_fazer_palpites(grupo)
+    resposta = teclados.teclado_de_fazer_palpites(grupo, palpite)
     textos = utils.rodada_com_palpites([partidas_palpites[0]])
     texto = f'**Dar Palpite na Rodada {rodada.nome}\n\n**' + '\n'.join(textos)
     return resposta, texto
 
 
+def resposta_para_escolher_mandante(callback_query):
+    palpite_id = callback_query.data.replace('mandante_', '')
+    palpite = service.pegar_palpite_por_id(palpite_id)
+    palpite.resultado = 'M'
+    palpite.save()
+    resposta = teclados.teclado_de_palpite_mandante(palpite)
+
+
 # entrar num grupo
 
 # lista de jogadores
+
+
+@app.on_message(filters.command('start'))
+async def start(_, message):
+    await message.reply(
+        'Bem vindo ao DiveniBot!',
+        reply_markup=InlineKeyboardMarkup(teclados.teclado_principal()),
+    )
+
 
 # keyboard
 @app.on_message(filters.command('teclado'))
@@ -164,6 +181,11 @@ async def resposta_teclado(_, callback_query):
         )
     if 'fazer_palpites_' in callback_query.data:
         resposta, texto = resposta_para_fazer_palpites(callback_query)
+        await callback_query.edit_message_text(
+            texto, reply_markup=InlineKeyboardMarkup(resposta)
+        )
+    if 'mandante_' in callback_query.data:
+        resposta, texto = resposta_para_escolher_mandante(callback_query)
         await callback_query.edit_message_text(
             texto, reply_markup=InlineKeyboardMarkup(resposta)
         )

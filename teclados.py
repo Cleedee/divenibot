@@ -82,7 +82,7 @@ def teclado_dos_palpites(grupo, partidas_palpites):
     return botoes
 
 
-def teclado_de_fazer_palpites(grupo):
+def teclado_de_fazer_palpites(grupo, palpite):
     """
     Dar Palpite
     +-----------------------+
@@ -100,13 +100,13 @@ def teclado_de_fazer_palpites(grupo):
     """
     botoes = []
     botao_mandante = InlineKeyboardButton(
-        'Mandante', callback_data=f'mandante_{grupo.id}'
+        'Mandante', callback_data=f'mandante_{palpite.id}'
     )
     botao_empate = InlineKeyboardButton(
-        'Empate', callback_data=f'empate_{grupo.id}'
+        'Empate', callback_data=f'empate_{palpite.id}'
     )
     botao_visitante = InlineKeyboardButton(
-        'Visitante', callback_data=f'visitante_{grupo.id}'
+        'Visitante', callback_data=f'visitante_{palpite.id}'
     )
     botao_anterior = InlineKeyboardButton(
         'Anterior', callback_data=f'anterior_{grupo.id}'
@@ -120,5 +120,15 @@ def teclado_de_fazer_palpites(grupo):
     botoes.append([botao_mandante, botao_visitante])
     botoes.append([botao_empate])
     botoes.append([botao_anterior, botao_posterior])
+    botoes.append([botao_voltar])
+    return botoes
+
+
+def teclado_de_palpite_mandante(palpite):
+    botoes = []
+    botao_voltar = InlineKeyboardButton(
+        'Voltar',
+        callback_data=f'fazer_palpites_{palpite.apostador.grupo_id}_{palpite.partida.rodada_id}',
+    )
     botoes.append([botao_voltar])
     return botoes

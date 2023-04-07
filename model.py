@@ -74,7 +74,19 @@ class Partida(Model):
     def visitante(self):
         return Time
 
+    @belongs_to
+    def rodada(self):
+        return Rodada
+
 
 class Palpite(Model):
     __table__ = 'palpite'
     __timestamps__ = False
+
+    @belongs_to
+    def partida(self):
+        return Partida
+
+    @belongs_to
+    def apostador(self):
+        return Jogador

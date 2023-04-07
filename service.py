@@ -71,3 +71,7 @@ def procurar_palpites(jogador, rodada):
         )
         pares_partida_palpite.append((partida, palpite))
     return pares_partida_palpite
+
+
+def pegar_palpite_por_id(id):
+    return Palpite.find(id)
