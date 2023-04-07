@@ -116,11 +116,24 @@ def resposta_para_fazer_palpites(callback_query):
 
 
 def resposta_para_escolher_mandante(callback_query):
+    # obtenho do callback o id do palpite
     palpite_id = callback_query.data.replace('mandante_', '')
+    # pesquiso no banco
     palpite = service.pegar_palpite_por_id(palpite_id)
+    # mudo o resultado para M de Mandante
     palpite.resultado = 'M'
+    # salvo no banco a mudança
     palpite.save()
-    resposta = teclados.teclado_de_palpite_mandante(palpite)
+    # seleciono o teclado de fazer palpites
+    grupo = palpite.apostador.grupo
+    resposta = teclados.teclado_de_fazer_palpites(grupo, palpite)
+    # mando o texto com a mudança do palpite escolhido
+    jogador = palpite.apostador
+    rodada = palpite.partida.rodada
+    partidas_palpites = service.procurar_palpites(jogador, rodada)
+    textos = utils.rodada_com_palpites([partidas_palpites[0]])
+    texto = f'**Dar Palpite na Rodada {rodada.nome}\n\n**' + '\n'.join(textos)
+    return resposta, texto
 
 
 # entrar num grupo
