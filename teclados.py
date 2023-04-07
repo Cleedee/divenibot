@@ -122,13 +122,3 @@ def teclado_de_fazer_palpites(grupo, palpite):
     botoes.append([botao_anterior, botao_posterior])
     botoes.append([botao_voltar])
     return botoes
-
-
-def teclado_de_palpite_mandante(palpite):
-    botoes = []
-    botao_voltar = InlineKeyboardButton(
-        'Voltar',
-        callback_data=f'fazer_palpites_{palpite.apostador.grupo_id}_{palpite.partida.rodada_id}',
-    )
-    botoes.append([botao_voltar])
-    return botoes
