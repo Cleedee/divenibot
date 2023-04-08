@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "diveni"}]
 
 [tool.poetry.scripts]
-divenibot = "diveni.main"
+divenibot = "diveni.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -32,3 +32,7 @@ mkdocs-material = "^9.1.6"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = "--doctest-modules"

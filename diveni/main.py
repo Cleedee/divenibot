@@ -12,8 +12,6 @@ from diveni import utils
 
 config = dotenv_values('.env')
 
-print('Iniciando...')
-
 usuarios = {
     'Cleedee': 1,
 }
@@ -34,13 +32,6 @@ SESSAO = {}
 #         }
 #     }
 # }
-
-app = Client(
-    'DiveniBot',
-    api_id=config['API_ID'],
-    api_hash=config['API_HASH'],
-    bot_token=config['TOKEN_API'],
-)
 
 
 def resposta_para_grupos(callback_query):
@@ -170,83 +161,85 @@ def resposta_para_posterior(callback_query):
     # TODO concluir implementação
 
 
-# entrar num grupo
-
-# lista de jogadores
-
-
-@app.on_message(filters.command('start'))
-async def start(_, message):
-    await message.reply(
-        'Bem vindo ao DiveniBot!',
-        reply_markup=InlineKeyboardMarkup(teclados.teclado_principal()),
+def main():
+    app = Client(
+        'DiveniBot',
+        api_id=config['API_ID'],
+        api_hash=config['API_HASH'],
+        bot_token=config['TOKEN_API'],
     )
 
-
-# keyboard
-@app.on_message(filters.command('teclado'))
-async def inicia_teclado(_, message):
-    await message.reply(
-        'Escolha algo!',
-        reply_markup=InlineKeyboardMarkup(teclados.teclado_principal()),
-    )
-
-
-# resposta do teclado
-@app.on_callback_query()
-async def resposta_teclado(_, callback_query):
-    if callback_query.data == 'grupos':
-        resposta = resposta_para_grupos(callback_query)
-        await callback_query.edit_message_text(
-            'Meus Grupos', reply_markup=InlineKeyboardMarkup(resposta)
+    @app.on_message(filters.command('start'))
+    async def start(_, message):
+        await message.reply(
+            'Bem vindo ao DiveniBot!',
+            reply_markup=InlineKeyboardMarkup(teclados.teclado_principal()),
         )
-    if callback_query.data == 'voltar':
-        await callback_query.edit_message_text(
+
+
+    # keyboard
+    @app.on_message(filters.command('teclado'))
+    async def inicia_teclado(_, message):
+        await message.reply(
             'Escolha algo!',
             reply_markup=InlineKeyboardMarkup(teclados.teclado_principal()),
         )
-    if 'grupo_' in callback_query.data:
-        resposta, grupo = resposta_para_grupo(callback_query)
-        await callback_query.edit_message_text(
-            'Grupo {}'.format(grupo.nome),
-            reply_markup=InlineKeyboardMarkup(resposta),
-        )
-    if 'pontuacao_' in callback_query.data:
-        resposta, texto = resposta_para_pontuacao(callback_query)
-        await callback_query.edit_message_text(
-            texto, reply_markup=InlineKeyboardMarkup(resposta)
-        )
-    if 'rodada_atual_' in callback_query.data:
-        resposta, texto = resposta_para_rodada_atual(callback_query)
-        await callback_query.edit_message_text(
-            texto, reply_markup=InlineKeyboardMarkup(resposta)
-        )
-    if 'ver_palpites_' in callback_query.data:
-        resposta, texto = resposta_para_ver_palpites(callback_query)
-        await callback_query.edit_message_text(
-            texto, reply_markup=InlineKeyboardMarkup(resposta)
-        )
-    if 'fazer_palpites_' in callback_query.data:
-        resposta, texto = resposta_para_fazer_palpites(callback_query)
-        await callback_query.edit_message_text(
-            texto, reply_markup=InlineKeyboardMarkup(resposta)
-        )
-    if 'mandante_' in callback_query.data:
-        resposta, texto = resposta_para_escolher_mandante(callback_query)
-        await callback_query.edit_message_text(
-            texto, reply_markup=InlineKeyboardMarkup(resposta)
-        )
-    if 'visitante_' in callback_query.data:
-        resposta, texto = resposta_para_escolher_visitante(callback_query)
-        await callback_query.edit_message_text(
-            texto, reply_markup=InlineKeyboardMarkup(resposta)
-        )
-    if 'empate_' in callback_query.data:
-        resposta, texto = resposta_para_escolher_empate(callback_query)
-        await callback_query.edit_message_text(
-            texto, reply_markup=InlineKeyboardMarkup(resposta)
-        )
 
 
-app.run()
-print('Encerrando...')
+    # resposta do teclado
+    @app.on_callback_query()
+    async def resposta_teclado(_, callback_query):
+        if callback_query.data == 'grupos':
+            resposta = resposta_para_grupos(callback_query)
+            await callback_query.edit_message_text(
+                'Meus Grupos', reply_markup=InlineKeyboardMarkup(resposta)
+            )
+        if callback_query.data == 'voltar':
+            await callback_query.edit_message_text(
+                'Escolha algo!',
+                reply_markup=InlineKeyboardMarkup(teclados.teclado_principal()),
+            )
+        if 'grupo_' in callback_query.data:
+            resposta, grupo = resposta_para_grupo(callback_query)
+            await callback_query.edit_message_text(
+                'Grupo {}'.format(grupo.nome),
+                reply_markup=InlineKeyboardMarkup(resposta),
+            )
+        if 'pontuacao_' in callback_query.data:
+            resposta, texto = resposta_para_pontuacao(callback_query)
+            await callback_query.edit_message_text(
+                texto, reply_markup=InlineKeyboardMarkup(resposta)
+            )
+        if 'rodada_atual_' in callback_query.data:
+            resposta, texto = resposta_para_rodada_atual(callback_query)
+            await callback_query.edit_message_text(
+                texto, reply_markup=InlineKeyboardMarkup(resposta)
+            )
+        if 'ver_palpites_' in callback_query.data:
+            resposta, texto = resposta_para_ver_palpites(callback_query)
+            await callback_query.edit_message_text(
+                texto, reply_markup=InlineKeyboardMarkup(resposta)
+            )
+        if 'fazer_palpites_' in callback_query.data:
+            resposta, texto = resposta_para_fazer_palpites(callback_query)
+            await callback_query.edit_message_text(
+                texto, reply_markup=InlineKeyboardMarkup(resposta)
+            )
+        if 'mandante_' in callback_query.data:
+            resposta, texto = resposta_para_escolher_mandante(callback_query)
+            await callback_query.edit_message_text(
+                texto, reply_markup=InlineKeyboardMarkup(resposta)
+            )
+        if 'visitante_' in callback_query.data:
+            resposta, texto = resposta_para_escolher_visitante(callback_query)
+            await callback_query.edit_message_text(
+                texto, reply_markup=InlineKeyboardMarkup(resposta)
+            )
+        if 'empate_' in callback_query.data:
+            resposta, texto = resposta_para_escolher_empate(callback_query)
+            await callback_query.edit_message_text(
+                texto, reply_markup=InlineKeyboardMarkup(resposta)
+            )
+    print('Iniciando...')
+    app.run()
+    print('Encerrando...')
