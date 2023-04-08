@@ -18,6 +18,23 @@ usuarios = {
     'Cleedee': 1,
 }
 
+SESSAO = {}
+
+# SESSAO = {
+#     '1' : {
+#         'grupo' {
+#             '3': {
+#                 'palpites': [],
+#                 'posicao': 3
+#             },
+#             '5': {
+#                 'palpites': [],
+#                 'posicao': 0
+#             }
+#         }
+#     }
+# }
+
 app = Client(
     'DiveniBot',
     api_id=config['API_ID'],
@@ -106,11 +123,23 @@ def resposta_para_fazer_palpites(callback_query):
     jogador = service.procurar_jogador(usuario_id, grupo_id)
     grupo = service.pegar_grupo_por_id(grupo_id)
     rodada = service.pegar_rodada_por_id(rodada_id)
-    partidas_palpites = service.procurar_palpites(jogador, rodada)
-    partida = partidas_palpites[0][0]
-    palpite = partidas_palpites[0][1]
+    if SESSAO.get(jogador.id) and SESSAO.get(jogador.id).get('palpites'):
+        partidas_palpites = SESSAO.get(jogador.id).get('palpites')
+    else:
+        partidas_palpites = service.procurar_palpites(jogador, rodada)
+        if not SESSAO.get(jogador.id):
+            SESSAO[jogador.id] = {}
+            SESSAO.get(jogador.id)['palpites'] = partidas_palpites
+            SESSAO.get(jogador.id)['posicao'] = 0
+        else:
+            if not SESSAO.get(jogador.id).get('palpites'):
+                SESSAO.get(jogador.id)['palpites'] = partidas_palpites
+                SESSAO.get(jogador.id)['posicao'] = 0
+    palpite = partidas_palpites[SESSAO.get(jogador.id)['posicao']][1]
     resposta = teclados.teclado_de_fazer_palpites(grupo, palpite)
-    textos = utils.rodada_com_palpites([partidas_palpites[0]])
+    textos = utils.rodada_com_palpites(
+        [partidas_palpites[SESSAO.get(jogador.id)['posicao']]]
+    )
     texto = f'**Dar Palpite na Rodada {rodada.nome}\n\n**' + '\n'.join(textos)
     return resposta, texto
 
@@ -121,17 +150,25 @@ def resposta_para_escolher_mandante(callback_query):
     resposta, texto = utils.salvar_palpite_e_montar_resposta(palpite_id, 'M')
     return resposta, texto
 
+
 def resposta_para_escolher_visitante(callback_query):
     # obtenho do callback o id do palpite
     palpite_id = callback_query.data.replace('visitante_', '')
     resposta, texto = utils.salvar_palpite_e_montar_resposta(palpite_id, 'V')
     return resposta, texto
 
+
 def resposta_para_escolher_empate(callback_query):
     # obtenho do callback o id do palpite
     palpite_id = callback_query.data.replace('empate_', '')
     resposta, texto = utils.salvar_palpite_e_montar_resposta(palpite_id, 'E')
     return resposta, texto
+
+
+def resposta_para_posterior(callback_query):
+    palpite_id = callback_query.data.replace('posterior_', '')
+    # TODO concluir implementação
+
 
 # entrar num grupo
 
