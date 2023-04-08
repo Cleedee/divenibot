@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "Bot Telegram que oferece recursos para os jogadores do Palpites realizarem seus palpites."
 authors = ["Claudio Torcato <claudiotorcato@gmail.com>"]
 readme = "README.md"
+packages = [{include = "diveni"}]
+
+[tool.poetry.scripts]
+divenibot = "diveni.main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
