@@ -1,4 +1,4 @@
-from model import db, Torneio, Grupo, Jogador, Partida, Rodada, Palpite
+from diveni.model import db, Torneio, Grupo, Jogador, Partida, Rodada, Palpite
 
 
 def procurar_torneios():

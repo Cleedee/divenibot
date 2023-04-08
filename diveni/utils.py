@@ -1,4 +1,4 @@
-import service, teclados
+from diveni import service, teclados
 
 def rodada_com_palpites(partidas_palpites):
     textos = []

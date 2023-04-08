@@ -6,9 +6,9 @@ from pyrogram.types import (
 )
 from dotenv import dotenv_values
 
-import service
-import teclados
-import utils
+from diveni import service
+from diveni import teclados
+from diveni import utils
 
 config = dotenv_values('.env')
 
