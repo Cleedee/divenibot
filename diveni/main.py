@@ -9,6 +9,7 @@ from dotenv import dotenv_values
 from diveni import service
 from diveni import teclados
 from diveni import utils
+from diveni.utils import SESSAO, BancoSessao
 
 config = dotenv_values('.env')
 
@@ -16,20 +17,16 @@ usuarios = {
     'Cleedee': 1,
 }
 
-SESSAO = {}
+banco = BancoSessao(SESSAO)
 
 # SESSAO = {
 #     '1' : {
-#         'grupo' {
-#             '3': {
-#                 'palpites': [],
-#                 'posicao': 3
-#             },
-#             '5': {
-#                 'palpites': [],
-#                 'posicao': 0
-#             }
-#         }
+#         'palpites': [],
+#         'posicao': 3
+#     },
+#     '5': {
+#         'palpites': [],
+#         'posicao': 0
 #     }
 # }
 
@@ -88,7 +85,7 @@ def resposta_para_rodada_atual(callback_query):
 
 def resposta_para_ver_palpites(callback_query):
     """
-    [Athletico-PR] x Goiás
+    [Athletico-PR] x Goias
     Fortaleza [x] Internacional
     América-MG [x] Fluminense
     """
@@ -114,22 +111,13 @@ def resposta_para_fazer_palpites(callback_query):
     jogador = service.procurar_jogador(usuario_id, grupo_id)
     grupo = service.pegar_grupo_por_id(grupo_id)
     rodada = service.pegar_rodada_por_id(rodada_id)
-    if SESSAO.get(jogador.id) and SESSAO.get(jogador.id).get('palpites'):
-        partidas_palpites = SESSAO.get(jogador.id).get('palpites')
-    else:
-        partidas_palpites = service.procurar_palpites(jogador, rodada)
-        if not SESSAO.get(jogador.id):
-            SESSAO[jogador.id] = {}
-            SESSAO.get(jogador.id)['palpites'] = partidas_palpites
-            SESSAO.get(jogador.id)['posicao'] = 0
-        else:
-            if not SESSAO.get(jogador.id).get('palpites'):
-                SESSAO.get(jogador.id)['palpites'] = partidas_palpites
-                SESSAO.get(jogador.id)['posicao'] = 0
-    palpite = partidas_palpites[SESSAO.get(jogador.id)['posicao']][1]
+    partidas_palpites = service.procurar_palpites(jogador, rodada)
+    banco.informar_jogador(jogador.id)
+    banco.informar_reserva_palpites(partidas_palpites)
+    palpite = banco.palpite()
     resposta = teclados.teclado_de_fazer_palpites(grupo, palpite)
     textos = utils.rodada_com_palpites(
-        [partidas_palpites[SESSAO.get(jogador.id)['posicao']]]
+        [banco.palpites()[banco.posicao_atual()]]
     )
     texto = f'**Dar Palpite na Rodada {rodada.nome}\n\n**' + '\n'.join(textos)
     return resposta, texto
@@ -157,9 +145,36 @@ def resposta_para_escolher_empate(callback_query):
 
 
 def resposta_para_posterior(callback_query):
-    palpite_id = callback_query.data.replace('posterior_', '')
-    # TODO concluir implementação
+    grupo_id = callback_query.data.replace('posterior_', '')
+    username = callback_query.from_user.username
+    usuario_id = usuarios[username]
+    jogador = service.procurar_jogador(usuario_id, grupo_id)
+    grupo = service.pegar_grupo_por_id(grupo_id)
+    banco.informar_jogador(jogador.id)
+    banco.avancar()
+    resposta = teclados.teclado_de_fazer_palpites(grupo, banco.palpite())
+    textos = utils.rodada_com_palpites(
+        [banco.palpites()[banco.posicao_atual()]]
+    )
+    rodada = banco.palpite().partida.rodada
+    texto = f'**Dar Palpite na Rodada {rodada.nome}\n\n**' + '\n'.join(textos)
+    return resposta, texto
 
+def resposta_para_anterior(callback_query):
+    grupo_id = callback_query.data.replace('anterior_', '')
+    username = callback_query.from_user.username
+    usuario_id = usuarios[username]
+    jogador = service.procurar_jogador(usuario_id, grupo_id)
+    grupo = service.pegar_grupo_por_id(grupo_id)
+    banco.informar_jogador(jogador.id)
+    banco.retroceder()
+    resposta = teclados.teclado_de_fazer_palpites(grupo, banco.palpite())
+    textos = utils.rodada_com_palpites(
+        [banco.palpites()[banco.posicao_atual()]]
+    )
+    rodada = banco.palpite().partida.rodada
+    texto = f'**Dar Palpite na Rodada {rodada.nome}\n\n**' + '\n'.join(textos)
+    return resposta, texto
 
 def main():
     app = Client(
@@ -237,6 +252,16 @@ def main():
             )
         if 'empate_' in callback_query.data:
             resposta, texto = resposta_para_escolher_empate(callback_query)
+            await callback_query.edit_message_text(
+                texto, reply_markup=InlineKeyboardMarkup(resposta)
+            )
+        if 'posterior_' in callback_query.data:
+            resposta, texto = resposta_para_posterior(callback_query)
+            await callback_query.edit_message_text(
+                texto, reply_markup=InlineKeyboardMarkup(resposta)
+            )
+        if 'anterior_' in callback_query.data:
+            resposta, texto = resposta_para_anterior(callback_query)
             await callback_query.edit_message_text(
                 texto, reply_markup=InlineKeyboardMarkup(resposta)
             )
